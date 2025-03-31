@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometric Verification - Web3 Voting</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="flex items-center">
+                            <i class="fas fa-vote-yea text-blue-600 text-2xl"></i>
+                            <span class="ml-2 text-xl font-semibold">Web3 Voting</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button id="connectWallet" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out">
+                        <i class="fas fa-wallet mr-2"></i>Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Verification Form -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-3xl mx-auto">
+            <!-- Progress Steps -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-semibold">1</div>
+                    <div class="ml-2 text-sm font-medium text-gray-900">Connect Wallet</div>
+                </div>
+                <div class="h-0.5 w-16 bg-gray-200"></div>
+                <div class="flex items-center">
+                    <div class="bg-blue-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-semibold">2</div>
+                    <div class="ml-2 text-sm font-medium text-gray-900">Biometric Verification</div>
+                </div>
+                <div class="h-0.5 w-16 bg-gray-200"></div>
+                <div class="flex items-center">
+                    <div class="bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-500 font-semibold">3</div>
+                    <div class="ml-2 text-sm font-medium text-gray-500">Vote</div>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Biometric Verification</h2>
+                
+                <form id="verificationForm" class="space-y-6">
+                    <!-- Face Verification -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Face Verification</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                            <div class="space-y-1 text-center">
+                                <img id="facePreview" class="preview-image mx-auto hidden mb-4">
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="faceInput" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Upload a photo</span>
+                                        <input id="faceInput" name="face" type="file" accept="image/*" class="sr-only" required>
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Iris Verification -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Iris Verification</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                            <div class="space-y-1 text-center">
+                                <img id="irisPreview" class="preview-image mx-auto hidden mb-4">
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="irisInput" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Upload a photo</span>
+                                        <input id="irisInput" name="iris" type="file" accept="image/*" class="sr-only" required>
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-150 ease-in-out">
+                            Verify & Continue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File preview functionality
+        function handleFileSelect(input, previewId) {
+            const preview = document.getElementById(previewId);
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        handleFileSelect(document.getElementById('faceInput'), 'facePreview');
+        handleFileSelect(document.getElementById('irisInput'), 'irisPreview');
+
+        // Form submission
+        document.getElementById('verificationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const walletAddress = localStorage.getItem('walletAddress');
+            if (!walletAddress) {
+                alert('Please connect your wallet first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('face', document.getElementById('faceInput').files[0]);
+            formData.append('iris', document.getElementById('irisInput').files[0]);
+
+            try {
+                const response = await fetch('/api/verify_biometrics', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store verification ID
+                    localStorage.setItem('verificationId', result.verification_id);
+                    // Redirect to voting page
+                    window.location.href = '/vote';
+                } else {
+                    alert(result.error || 'Verification failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during verification. Please try again.');
+            }
+        });
+
+        // MetaMask Integration
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    
+                    const button = document.getElementById('connectWallet');
+                    button.innerHTML = `<i class="fas fa-wallet mr-2"></i>${account.slice(0, 6)}...${account.slice(-4)}`;
+                    button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    button.classList.add('bg-green-600', 'hover:bg-green-700');
+                    
+                    localStorage.setItem('walletAddress', account);
+                } catch (error) {
+                    console.error('Error connecting to MetaMask:', error);
+                    alert('Error connecting to MetaMask. Please try again.');
+                }
+            } else {
+                alert('MetaMask is not installed. Please install MetaMask to use this application.');
+                window.open('https://metamask.io/download.html', '_blank');
+            }
+        });
+
+        // Check if wallet was previously connected
+        window.addEventListener('load', () => {
+            const savedAddress = localStorage.getItem('walletAddress');
+            if (savedAddress) {
+                const button = document.getElementById('connectWallet');
+                button.innerHTML = `<i class="fas fa-wallet mr-2"></i>${savedAddress.slice(0, 6)}...${savedAddress.slice(-4)}`;
+                button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                button.classList.add('bg-green-600', 'hover:bg-green-700');
+            }
+        });
+    </script>
+</body>
+</html>
