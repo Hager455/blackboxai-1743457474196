@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cast Your Vote - Web3 Voting</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="flex items-center">
+                            <i class="fas fa-vote-yea text-blue-600 text-2xl"></i>
+                            <span class="ml-2 text-xl font-semibold">Web3 Voting</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button id="connectWallet" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out">
+                        <i class="fas fa-wallet mr-2"></i>Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-3xl mx-auto">
+            <!-- Progress Steps -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center">
+                    <div class="bg-green-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-semibold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="ml-2 text-sm font-medium text-gray-900">Connect Wallet</div>
+                </div>
+                <div class="h-0.5 w-16 bg-green-600"></div>
+                <div class="flex items-center">
+                    <div class="bg-green-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-semibold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="ml-2 text-sm font-medium text-gray-900">Biometric Verification</div>
+                </div>
+                <div class="h-0.5 w-16 bg-blue-600"></div>
+                <div class="flex items-center">
+                    <div class="bg-blue-600 rounded-full h-8 w-8 flex items-center justify-center text-white font-semibold">3</div>
+                    <div class="ml-2 text-sm font-medium text-gray-900">Vote</div>
+                </div>
+            </div>
+
+            <!-- Biometric Verification Status -->
+            <div id="biometricStatus" class="mb-6 p-4 bg-blue-50 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-fingerprint text-blue-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">Biometric Verification</h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <p>Verification ID: <span id="verificationIdDisplay" class="font-mono">${localStorage.getItem('verificationId') || 'Not found'}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voting Card -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Cast Your Vote</h2>
+                
+                <!-- Voting Status -->
+                <div id="votingStatus" class="mb-6 p-4 bg-yellow-50 rounded-lg hidden">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">Voting Status</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p id="statusMessage">Checking voting status...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Candidates List -->
+                <div id="candidatesList" class="space-y-4">
+                    <p class="text-gray-500 text-center">Loading candidates...</p>
+                </div>
+
+                <!-- Vote Button -->
+                <div class="mt-6 flex justify-end">
+                    <button id="voteButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                        Cast Vote
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transaction Status Modal -->
+            <div id="transactionModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                        <div>
+                            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
+                                <i id="modalIcon" class="fas fa-spinner fa-spin text-blue-600"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-5">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">
+                                    Processing Vote
+                                </h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500" id="modalMessage">
+                                        Please confirm the transaction in MetaMask...
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 sm:mt-6 hidden" id="modalButton">
+                            <button type="button" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedCandidate = null;
+
+        // Check prerequisites
+        window.addEventListener('load', async () => {
+            const walletAddress = localStorage.getItem('walletAddress');
+            const verificationId = localStorage.getItem('verificationId');
+
+            if (!walletAddress) {
+                window.location.href = '/';
+                return;
+            }
+
+            if (!verificationId) {
+                window.location.href = '/verify';
+                return;
+            }
+
+            // Verify biometric status with backend
+            try {
+                const response = await fetch('/api/verify_biometric_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        verification_id: verificationId,
+                        wallet_address: walletAddress
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    document.getElementById('biometricStatus').classList.remove('bg-blue-50', 'text-blue-800');
+                    document.getElementById('biometricStatus').classList.add('bg-red-50', 'text-red-800');
+                    document.querySelector('#biometricStatus i').classList.remove('text-blue-500');
+                    document.querySelector('#biometricStatus i').classList.add('text-red-500');
+                    document.querySelector('#biometricStatus h3').textContent = 'Biometric Verification Failed';
+                    document.querySelector('#biometricStatus p').textContent = result.message || 'Verification failed. Please try again.';
+                    
+                    // Disable voting
+                    document.getElementById('voteButton').disabled = true;
+                    return;
+                }
+
+                // Load candidates
+                await loadCandidates();
+                
+                // Update wallet button
+                const button = document.getElementById('connectWallet');
+                button.innerHTML = `<i class="fas fa-wallet mr-2"></i>${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+                button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                button.classList.add('bg-green-600', 'hover:bg-green-700');
+            } catch (error) {
+                console.error('Error verifying biometric status:', error);
+                document.getElementById('biometricStatus').classList.remove('bg-blue-50', 'text-blue-800');
+                document.getElementById('biometricStatus').classList.add('bg-red-50', 'text-red-800');
+                document.querySelector('#biometricStatus i').classList.remove('text-blue-500');
+                document.querySelector('#biometricStatus i').classList.add('text-red-500');
+                document.querySelector('#biometricStatus h3').textContent = 'Verification Error';
+                document.querySelector('#biometricStatus p').textContent = 'Failed to verify biometric status. Please try again.';
+                
+                // Disable voting
+                document.getElementById('voteButton').disabled = true;
+            }
+        });
+
+        // Load candidates
+        async function loadCandidates() {
+            try {
+                const response = await fetch('/api/candidates');
+                const data = await response.json();
+
+                if (data.success) {
+                    const candidatesList = document.getElementById('candidatesList');
+                    candidatesList.innerHTML = data.candidates.map((candidate, index) => `
+                        <div class="relative flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer transition-colors duration-150 ease-in-out ${selectedCandidate === index ? 'border-blue-500 bg-blue-50' : ''}"
+                             onclick="selectCandidate(${index})">
+                            <div class="flex items-center h-5">
+                                <input type="radio" name="candidate" value="${index}"
+                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                                    ${selectedCandidate === index ? 'checked' : ''}>
+                            </div>
+                            <div class="ml-3 flex justify-between w-full">
+                                <label class="font-medium text-gray-700">
+                                    ${candidate.name}
+                                </label>
+                                <span class="text-gray-500">
+                                    ${candidate.vote_count} votes
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading candidates:', error);
+            }
+        }
+
+        // Select candidate
+        function selectCandidate(index) {
+            selectedCandidate = index;
+            document.querySelectorAll('#candidatesList > div').forEach((div, i) => {
+                if (i === index) {
+                    div.classList.add('border-blue-500', 'bg-blue-50');
+                    div.querySelector('input').checked = true;
+                } else {
+                    div.classList.remove('border-blue-500', 'bg-blue-50');
+                    div.querySelector('input').checked = false;
+                }
+            });
+        }
+
+        // Vote button click handler
+        document.getElementById('voteButton').addEventListener('click', async () => {
+            if (selectedCandidate === null) {
+                alert('Please select a candidate');
+                return;
+            }
+
+            const walletAddress = localStorage.getItem('walletAddress');
+            const verificationId = localStorage.getItem('verificationId');
+
+            showTransactionModal();
+
+            try {
+                const response = await fetch('/api/vote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        voter_address: walletAddress,
+                        candidate_id: selectedCandidate,
+                        verification_id: verificationId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Sign and send transaction using MetaMask
+                    try {
+                        const transactionHash = await window.ethereum.request({
+                            method: 'eth_sendTransaction',
+                            params: [result.transaction],
+                        });
+
+                        updateModalSuccess(transactionHash);
+                        await loadCandidates(); // Refresh candidates list
+                    } catch (error) {
+                        updateModalError('Transaction rejected');
+                    }
+                } else {
+                    updateModalError(result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                updateModalError('An error occurred while processing your vote');
+            }
+        });
+
+        // Modal functions
+        function showTransactionModal() {
+            document.getElementById('transactionModal').classList.remove('hidden');
+            document.getElementById('modalIcon').className = 'fas fa-spinner fa-spin text-blue-600';
+            document.getElementById('modalTitle').textContent = 'Processing Vote';
+            document.getElementById('modalMessage').textContent = 'Please confirm the transaction in MetaMask...';
+            document.getElementById('modalButton').classList.add('hidden');
+        }
+
+        function updateModalSuccess(transactionHash) {
+            document.getElementById('modalIcon').className = 'fas fa-check text-green-600';
+            document.getElementById('modalTitle').textContent = 'Vote Cast Successfully';
+            document.getElementById('modalMessage').innerHTML = `
+                Your vote has been recorded on the blockchain.<br>
+                Transaction Hash: ${transactionHash.slice(0, 10)}...${transactionHash.slice(-8)}
+            `;
+            document.getElementById('modalButton').classList.remove('hidden');
+        }
+
+        function updateModalError(message) {
+            document.getElementById('modalIcon').className = 'fas fa-times text-red-600';
+            document.getElementById('modalTitle').textContent = 'Error';
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalButton').classList.remove('hidden');
+        }
+
+        // Close modal button
+        document.querySelector('#modalButton button').addEventListener('click', () => {
+            document.getElementById('transactionModal').classList.add('hidden');
+        });
+
+        // MetaMask Integration
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    
+                    const button = document.getElementById('connectWallet');
+                    button.innerHTML = `<i class="fas fa-wallet mr-2"></i>${account.slice(0, 6)}...${account.slice(-4)}`;
+                    button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    button.classList.add('bg-green-600', 'hover:bg-green-700');
+                    
+                    localStorage.setItem('walletAddress', account);
+                } catch (error) {
+                    console.error('Error connecting to MetaMask:', error);
+                    alert('Error connecting to MetaMask. Please try again.');
+                }
+            } else {
+                alert('MetaMask is not installed. Please install MetaMask to use this application.');
+                window.open('https://metamask.io/download.html', '_blank');
+            }
+        });
+    </script>
+</body>
+</html>
