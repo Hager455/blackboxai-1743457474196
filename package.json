@@ -1,0 +1,12 @@
+{
+  "name": "biometric-voting",
+  "version": "1.0.0",
+  "description": "Frontend assets for biometric voting system",
+  "scripts": {
+    "build-css": "tailwindcss build static/css/styles.css -o static/css/output.css",
+    "watch-css": "tailwindcss build static/css/styles.css -o static/css/output.css --watch"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.0.0"
+  }
+}
